@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1c2c">
+<title>打卡</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+        --bg-base: #e8dccc;
+        --overlay-color: 247, 240, 230;
+        --overlay-opacity: 0.25;
+        --panel-rgb: 254, 251, 246;
+        --card-opacity: 0.8;
+        --panel: #fefbf6;
+        --accent: #a88400;
+        --accent2: #2e7d3e;
+        --danger: #b83232;
+        --text: #1a1410;
+        --text-dim: #6b5a44;
+        --border: #a89880;
+        --shadow: #9a8a70;
+    }
+
+    body.night {
+        --bg-base: #1a1c2c;
+        --overlay-color: 26, 28, 44;
+        --overlay-opacity: 0.4;
+        --panel-rgb: 43, 45, 66;
+        --card-opacity: 0.8;
+        --panel: #2b2d42;
+        --accent: #ffd93d;
+        --accent2: #6bcb77;
+        --danger: #ff6b6b;
+        --text: #f0f0f0;
+        --text-dim: #8d93b0;
+        --border: #4a4e69;
+        --shadow: #0d0e18;
+    }
+
+    html, body {
+        height: 100%;
+        font-family: 'Press Start 2P', 'Courier New', monospace;
+        background: var(--bg-base);
+        color: var(--text);
+        overflow-x: hidden;
+        transition: background 0.3s;
+        font-size: 16px;
+    }
+
+    /* ===== 背景层 ===== */
+    #bgLayer {
+        position: fixed;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        z-index: 0;
+    }
+    #bgOverlayMask {
+        position: fixed;
+        inset: 0;
+        background: rgb(var(--overlay-color));
+        opacity: var(--overlay-opacity);
+        z-index: 1;
+        pointer-events: none;
+        transition: opacity 0.2s, background 0.3s;
+    }
+
+    /* ===== 主内容 ===== */
+    .app {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 28px 22px 56px;
+        min-height: 100vh;
+    }
+
+    /* ===== 通用卡片样式（透明度由 --card-opacity 控制） ===== */
+    .topbar, .toolbar, .add-panel, .task-card, .footer-actions, #bgTunePanel {
+        background: rgba(var(--panel-rgb), var(--card-opacity));
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(var(--card-blur, 6px));
+        -webkit-backdrop-filter: blur(var(--card-blur, 6px));
+    }
+
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 16px 20px;
+    }
+    .logo {
+        font-size: 1.4rem;
+        color: var(--accent);
+        letter-spacing: 3px;
+        text-shadow: 3px 3px 0 var(--shadow);
+    }
+    .date-tag {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        padding: 10px 12px;
+    }
+    .tool-btn {
+        font-family: inherit;
+        font-size: 1rem;
+        color: var(--text-dim);
+        background: transparent;
+        border: 2px solid var(--border);
+        padding: 14px 18px;
+        cursor: pointer;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1 1 auto;
+        min-width: 60px;
+    }
+    .tool-btn:active {
+        background: var(--panel);
+        color: var(--text);
+    }
+
+    .add-panel {
+        display: flex;
+        gap: 0;
+        margin-bottom: 16px;
+        padding: 4px 16px;
+    }
+    .add-panel input {
+        flex: 1;
+        font-family: inherit;
+        font-size: 1rem;
+        color: var(--text);
+        background: transparent;
+        border: none;
+        padding: 16px 0;
+        outline: none;
+        min-width: 0;
+    }
+    .add-panel input::placeholder { color: var(--text-dim); }
+    .add-panel button {
+        font-family: inherit;
+        font-size: 1.6rem;
+        color: var(--accent);
+        background: transparent;
+        border: none;
+        padding: 12px 16px;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .task-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+    .task-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 18px 20px;
+        margin-bottom: 10px;
+    }
+    .task-card.done { opacity: 0.55; }
+
+    .check-box {
+        width: 34px;
+        height: 34px;
+        border: 3px solid var(--border);
+        flex-shrink: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: transparent;
+    }
+    .check-box:active { transform: scale(0.9); }
+    .task-card.done .check-box {
+        background: var(--accent2);
+        border-color: var(--accent2);
+        color: var(--bg-base);
+    }
+
+    .task-body { flex: 1; min-width: 0; }
+    .task-title {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--text);
+        word-break: break-word;
+        margin-bottom: 8px;
+    }
+    .task-card.done .task-title { text-decoration: line-through; }
+
+    .task-sub {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+        line-height: 1.5;
+    }
+    .task-sub .streak { color: var(--accent); }
+
+    .del-btn {
+        font-family: inherit;
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 8px;
+        flex-shrink: 0;
+        opacity: 0.4;
+    }
+    .del-btn:active { opacity: 1; color: var(--danger); }
+
+    .empty {
+        text-align: center;
+        padding: 80px 16px;
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        line-height: 2.2;
+    }
+    .empty .big { font-size: 3rem; display: block; margin-bottom: 24px; opacity: 0.4; }
+
+    .footer-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        padding: 10px 12px;
+    }
+    .footer-actions .tool-btn { font-size: 0.85rem; padding: 16px 10px; }
+
+    .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 40px;
+        transform: translateX(-50%) translateY(12px);
+        background: var(--panel);
+        border: 2px solid var(--border);
+        color: var(--text);
+        padding: 16px 24px;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.2s;
+        z-index: 999;
+        max-width: 88vw;
+        text-align: center;
+    }
+    .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .hidden-file { display: none; }
+
+    .bgm-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: var(--text-dim);
+        margin-right: 6px;
+        vertical-align: middle;
+    }
+    .bgm-indicator.on {
+        background: var(--accent2);
+        animation: blink 1s steps(2) infinite;
+    }
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.2; }
+    }
+
+    /* ===== 滑块 ===== */
+    input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 10px;
+        background: var(--border);
+        outline: none;
+        border-radius: 0;
+        width: 100%;
+        display: block;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        background: var(--accent);
+        cursor: pointer;
+        border: 2px solid var(--shadow);
+    }
+    input[type="range"]::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        background: var(--accent);
+        cursor: pointer;
+        border: 2px solid var(--shadow);
+        border-radius: 0;
+    }
+
+    .tune-row { margin-bottom: 18px; }
+    .tune-label {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    @media (min-width: 700px) {
+        html, body { font-size: 18px; }
+        .app { padding: 40px 32px 72px; }
+        .logo { font-size: 1.8rem; }
+        .date-tag { font-size: 1rem; }
+        .tool-btn { font-size: 1.1rem; padding: 16px 22px; }
+        .add-panel input { font-size: 1.15rem; padding: 18px 0; }
+        .task-title { font-size: 1.15rem; }
+        .task-sub { font-size: 0.85rem; }
+        .footer-actions .tool-btn { font-size: 1rem; padding: 18px 14px; }
+    }
+</style>
+</head>
+<body>
+
+<div id="bgLayer"></div>
+<div id="bgOverlayMask"></div>
+
+<div class="app">
+    <div class="topbar">
+        <div class="logo">▣ CHECK</div>
+        <div class="date-tag" id="dateTag">--</div>
+    </div>
+
+    <div class="toolbar">
+        <button class="tool-btn" id="themeBtn" title="日夜模式">◐</button>
+        <button class="tool-btn" id="bgBtn" title="选择背景">▨ 背景</button>
+        <button class="tool-btn" id="bgTuneBtn" title="调节背景" style="display:none;">⚙ 调节</button>
+        <button class="tool-btn" id="bgClearBtn" title="清除背景" style="display:none;">✕</button>
+        <button class="tool-btn" id="bgmBtn" title="选择音乐"><span class="bgm-indicator" id="bgmDot"></span>♪ 音乐</button>
+        <button class="tool-btn" id="bgmToggle" title="播放/暂停" style="display:none;">⏸</button>
+        <button class="tool-btn" id="exportBtn" title="导出">↓ 导出</button>
+        <button class="tool-btn" id="importBtn" title="导入">↑ 导入</button>
+    </div>
+
+    <div class="add-panel">
+        <input type="text" id="newTaskInput" placeholder="新任务..." maxlength="30">
+        <button id="addTaskBtn">＋</button>
+    </div>
+
+    <div class="task-list" id="taskList"></div>
+
+    <div class="footer-actions">
+        <button class="tool-btn" id="resetTodayBtn">重置今日</button>
+        <button class="tool-btn" id="resetAllBtn">清空</button>
+    </div>
+
+    <!-- 背景调节面板 -->
+    <div id="bgTunePanel" style="display:none; margin-top: 20px; padding: 20px;">
+        <div style="font-size: 0.85rem; color: var(--accent); margin-bottom: 20px;">背景调节</div>
+
+        <div class="tune-row">
+            <label class="tune-label">大小 <span id="scaleValue">100%</span></label>
+            <input type="range" id="scaleSlider" min="10" max="400" value="100">
+        </div>
+
+        <div class="tune-row">
+            <label class="tune-label">水平位置 <span id="posXValue">50%</span></label>
+            <input type="range" id="posXSlider" min="0" max="100" value="50">
+        </div>
+
+        <div class="tune-row">
+            <label class="tune-label">垂直位置 <span id="posYValue">50%</span></label>
+            <input type="range" id="posYSlider" min="0" max="100" value="50">
+        </div>
+
+        <div class="tune-row">
+            <label class="tune-label">遮罩浓度 <span id="overlayValue">25%</span></label>
+            <input type="range" id="overlaySlider" min="0" max="90" value="25">
+        </div>
+
+        <div class="tune-row">
+            <label class="tune-label">卡片不透明度 <span id="cardOpacityValue">80%</span></label>
+            <input type="range" id="cardOpacitySlider" min="0" max="100" value="80">
+        </div>
+
+        <div class="tune-row" style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="blurCheck" style="width: 18px; height: 18px;" checked>
+            <label for="blurCheck" style="font-size: 0.75rem; color: var(--text-dim);">磨砂效果</label>
+        </div>
+		
+        <div class="tune-row" style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="tileCheck" style="width: 18px; height: 18px;">
+            <label for="tileCheck" style="font-size: 0.75rem; color: var(--text-dim);">平铺（原尺寸重复）</label>
+        </div>
+
+        <button class="tool-btn" id="bgResetTune" style="font-size: 0.75rem; padding: 12px 16px; width: 100%;">恢复默认</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<input type="file" id="bgFileInput" class="hidden-file" accept="image/*">
+<input type="file" id="bgmFileInput" class="hidden-file" accept="audio/*">
+<input type="file" id="importFileInput" class="hidden-file" accept=".json,application/json">
+
+<audio id="bgmAudio" loop></audio>
+
+<script>
+(function() {
+    'use strict';
+
+    function $(id) { return document.getElementById(id); }
+
+    function getTodayStr() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+    function getYesterdayStr() {
+        var d = new Date();
+        d.setDate(d.getDate() - 1);
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+    function uid() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+    }
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function(c) {
+            return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+        });
+    }
+
+    var taskList = $('taskList');
+    var newTaskInput = $('newTaskInput');
+    var addTaskBtn = $('addTaskBtn');
+    var toast = $('toast');
+    var bgLayer = $('bgLayer');
+    var bgFileInput = $('bgFileInput');
+    var bgClearBtn = $('bgClearBtn');
+    var bgTuneBtn = $('bgTuneBtn');
+    var bgTunePanel = $('bgTunePanel');
+    var bgmFileInput = $('bgmFileInput');
+    var bgmAudio = $('bgmAudio');
+    var bgmDot = $('bgmDot');
+    var bgmToggle = $('bgmToggle');
+    var importFileInput = $('importFileInput');
+    var themeBtn = $('themeBtn');
+    var metaTheme = document.querySelector('meta[name="theme-color"]');
+
+    var toastTimer = null;
+    function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    }
+
+    // ==================== IndexedDB ====================
+    var DB_NAME = 'pixel_checkin_db';
+    var DB_VERSION = 1;
+    var STORE = 'assets';
+    var dbPromise = null;
+
+    function openDB() {
+        if (dbPromise) return dbPromise;
+        dbPromise = new Promise(function(resolve, reject) {
+            var req = indexedDB.open(DB_NAME, DB_VERSION);
+            req.onupgradeneeded = function(e) {
+                var db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
+            };
+            req.onsuccess = function(e) { resolve(e.target.result); };
+            req.onerror = function(e) { reject(e.target.error); };
+        });
+        return dbPromise;
+    }
+    function dbSet(key, value) {
+        return openDB().then(function(db) {
+            return new Promise(function(resolve, reject) {
+                var tx = db.transaction(STORE, 'readwrite');
+                tx.objectStore(STORE).put(value, key).onsuccess = function() { resolve(); };
+                tx.onerror = function(e) { reject(e.target.error); };
+            });
+        });
+    }
+    function dbGet(key) {
+        return openDB().then(function(db) {
+            return new Promise(function(resolve, reject) {
+                var tx = db.transaction(STORE, 'readonly');
+                var req = tx.objectStore(STORE).get(key);
+                req.onsuccess = function(e) { resolve(e.target.result); };
+                req.onerror = function(e) { reject(e.target.error); };
+            });
+        });
+    }
+    function dbDelete(key) {
+        return openDB().then(function(db) {
+            return new Promise(function(resolve, reject) {
+                var tx = db.transaction(STORE, 'readwrite');
+                tx.objectStore(STORE).delete(key).onsuccess = function() { resolve(); };
+                tx.onerror = function(e) { reject(e.target.error); };
+            });
+        });
+    }
+
+    var TASK_KEY = 'pixel_checkin_tasks_v1';
+    var THEME_KEY = 'pixel_checkin_theme_v1';
+    var BG_DB_KEY = 'background';
+    var BGM_DB_KEY = 'bgm';
+    var BG_SETTINGS_KEY = 'bg_settings';
+
+    // ==================== 遮罩 & 卡片透明度 ====================
+    function applyOverlayOpacity(value) {
+        document.body.style.setProperty('--overlay-opacity', value);
+        var valEl = $('overlayValue');
+        if (valEl) valEl.textContent = Math.round(value * 100) + '%';
+        var slider = $('overlaySlider');
+        if (slider && document.activeElement !== slider) slider.value = Math.round(value * 100);
+    }
+    function loadOverlayOpacity() {
+        var saved = localStorage.getItem('overlay_opacity');
+        var def = 0.25;
+        applyOverlayOpacity(saved !== null ? parseFloat(saved) : def);
+    }
+
+    function applyCardOpacity(value) {
+        document.body.style.setProperty('--card-opacity', value);
+        var valEl = $('cardOpacityValue');
+        if (valEl) valEl.textContent = Math.round(value * 100) + '%';
+        var slider = $('cardOpacitySlider');
+        if (slider && document.activeElement !== slider) slider.value = Math.round(value * 100);
+    }
+    function loadCardOpacity() {
+        var saved = localStorage.getItem('card_opacity');
+        var def = 0.8;
+        applyCardOpacity(saved !== null ? parseFloat(saved) : def);
+    }
+    function applyBlur(enabled) {
+        document.body.style.setProperty('--card-blur', enabled ? '6px' : '0px');
+        var check = $('blurCheck');
+        if (check) check.checked = enabled;
+    }
+    function loadBlur() {
+        var saved = localStorage.getItem('card_blur');
+        var def = true;
+        applyBlur(saved !== null ? saved === '1' : def);
+    }
+    // ==================== 主题 ====================
+    function applyTheme(isNight) {
+        if (isNight) {
+            document.body.classList.add('night');
+            themeBtn.textContent = '◑';
+            metaTheme.setAttribute('content', '#1a1c2c');
+        } else {
+            document.body.classList.remove('night');
+            themeBtn.textContent = '◐';
+            metaTheme.setAttribute('content', '#e8dccc');
+        }
+    }
+
+    // ==================== 任务数据 ====================
+    function loadTasks() {
+        try {
+            var raw = localStorage.getItem(TASK_KEY);
+            if (raw) {
+                var arr = JSON.parse(raw);
+                if (Array.isArray(arr)) return arr;
+            }
+        } catch(e) {}
+        return [
+            { id: uid(), title: '喝水', lastCheckinDate: null, streak: 0 },
+            { id: uid(), title: '阅读', lastCheckinDate: null, streak: 0 }
+        ];
+    }
+    function saveTasks() {
+        localStorage.setItem(TASK_KEY, JSON.stringify(tasks));
+    }
+    var tasks = loadTasks();
+
+    // ==================== 背景 ====================
+    var currentBgDataUrl = null;
+    var bgSettings = { scale: 1, posX: 50, posY: 50, tile: false };
+
+    function applyBackground(dataUrl) {
+        currentBgDataUrl = dataUrl;
+        if (dataUrl) {
+            bgLayer.style.backgroundImage = "url('" + dataUrl + "')";
+            bgClearBtn.style.display = 'inline-flex';
+            bgTuneBtn.style.display = 'inline-flex';
+        } else {
+            bgLayer.style.backgroundImage = '';
+            bgClearBtn.style.display = 'none';
+            bgTuneBtn.style.display = 'none';
+            bgTunePanel.style.display = 'none';
+        }
+        applyBgSettings();
+    }
+
+    function applyBgSettings() {
+        if (!currentBgDataUrl) return;
+        if (bgSettings.tile) {
+            bgLayer.style.backgroundSize = 'auto';
+            bgLayer.style.backgroundRepeat = 'repeat';
+        } else {
+            bgLayer.style.backgroundSize = (bgSettings.scale * 100) + '% auto';
+            bgLayer.style.backgroundRepeat = 'no-repeat';
+        }
+        bgLayer.style.backgroundPosition = bgSettings.posX + '% ' + bgSettings.posY + '%';
+
+        var scaleValue = $('scaleValue');
+        var posXValue = $('posXValue');
+        var posYValue = $('posYValue');
+        var scaleSlider = $('scaleSlider');
+        var posXSlider = $('posXSlider');
+        var posYSlider = $('posYSlider');
+        var tileCheck = $('tileCheck');
+
+        if (scaleValue) scaleValue.textContent = Math.round(bgSettings.scale * 100) + '%';
+        if (posXValue) posXValue.textContent = bgSettings.posX + '%';
+        if (posYValue) posYValue.textContent = bgSettings.posY + '%';
+        if (scaleSlider && document.activeElement !== scaleSlider) scaleSlider.value = Math.round(bgSettings.scale * 100);
+        if (posXSlider && document.activeElement !== posXSlider) posXSlider.value = bgSettings.posX;
+        if (posYSlider && document.activeElement !== posYSlider) posYSlider.value = bgSettings.posY;
+        if (tileCheck) tileCheck.checked = bgSettings.tile;
+    }
+
+    function saveBgSettings() {
+        dbSet(BG_SETTINGS_KEY, JSON.stringify(bgSettings)).catch(function(){});
+    }
+
+    // ==================== BGM ====================
+    var bgmPlaying = false;
+    function updateBgmUI(hasBgm) {
+        if (hasBgm) {
+            bgmDot.classList.add('on');
+            bgmToggle.style.display = 'inline-flex';
+            bgmToggle.textContent = bgmPlaying ? '⏸' : '▶';
+        } else {
+            bgmDot.classList.remove('on');
+            bgmToggle.style.display = 'none';
+        }
+    }
+
+    // ==================== 打卡逻辑 ====================
+    function checkIn(taskId) {
+        var today = getTodayStr();
+        var task = tasks.find(function(t) { return t.id === taskId; });
+        if (!task || task.lastCheckinDate === today) return;
+        var newStreak = 1;
+        if (task.lastCheckinDate === getYesterdayStr()) newStreak = task.streak + 1;
+        task.lastCheckinDate = today;
+        task.streak = newStreak;
+        saveTasks(); render();
+        showToast('✓ ' + newStreak + ' 天');
+    }
+    function undoToday(taskId) {
+        var today = getTodayStr();
+        var task = tasks.find(function(t) { return t.id === taskId; });
+        if (!task || task.lastCheckinDate !== today) return;
+        if (task.streak >= 2) {
+            task.lastCheckinDate = getYesterdayStr();
+            task.streak -= 1;
+        } else {
+            task.lastCheckinDate = null; task.streak = 0;
+        }
+        saveTasks(); render();
+    }
+    function addTask() {
+        var title = newTaskInput.value.trim();
+        if (!title) return;
+        if (tasks.length >= 30) { showToast('任务太多'); return; }
+        tasks.push({ id: uid(), title: title, lastCheckinDate: null, streak: 0 });
+        newTaskInput.value = '';
+        saveTasks(); render();
+    }
+    function deleteTask(taskId) {
+        if (!confirm('删除？')) return;
+        tasks = tasks.filter(function(t) { return t.id !== taskId; });
+        saveTasks(); render();
+    }
+    function resetTodayAll() {
+        var today = getTodayStr();
+        var count = 0;
+        tasks.forEach(function(task) {
+            if (task.lastCheckinDate === today) {
+                if (task.streak >= 2) {
+                    task.lastCheckinDate = getYesterdayStr();
+                    task.streak -= 1;
+                } else {
+                    task.lastCheckinDate = null; task.streak = 0;
+                }
+                count++;
+            }
+        });
+        if (!count) return;
+        saveTasks(); render(); showToast('重置 ' + count + ' 项');
+    }
+    function resetAll() {
+        if (!confirm('清空所有任务？')) return;
+        tasks = [];
+        saveTasks(); render(); showToast('已清空');
+    }
+
+    // ==================== 导出 / 导入 ====================
+    function exportBackup() {
+        Promise.all([dbGet(BG_DB_KEY), dbGet(BGM_DB_KEY), dbGet(BG_SETTINGS_KEY)]).then(function(results) {
+            var backup = {
+                version: 5,
+                exportedAt: new Date().toISOString(),
+                tasks: tasks,
+                theme: document.body.classList.contains('night') ? 'night' : 'day',
+                overlay: localStorage.getItem('overlay_opacity'),
+                cardOpacity: localStorage.getItem('card_opacity')
+            };
+            if (results[0]) backup.background = results[0];
+            if (results[1]) backup.bgm = results[1];
+            if (results[2]) backup.bgSettings = JSON.parse(results[2]);
+
+            var dataStr = JSON.stringify(backup);
+            var blob = new Blob([dataStr], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'checkin-backup-' + new Date().toISOString().slice(0,10) + '.json';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('已导出');
+        }).catch(function() { showToast('导出失败'); });
+    }
+
+    function importBackup(file) {
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            try {
+                var data = JSON.parse(ev.target.result);
+                if (!data || !Array.isArray(data.tasks)) { showToast('格式不对'); return; }
+                if (!confirm('导入 ' + data.tasks.length + ' 个任务？')) return;
+
+                tasks = data.tasks.map(function(t) {
+                    return {
+                        id: t.id || uid(),
+                        title: String(t.title || '未命名'),
+                        lastCheckinDate: t.lastCheckinDate || null,
+                        streak: Number(t.streak) || 0
+                    };
+                });
+                saveTasks();
+
+                if (data.theme) {
+                    applyTheme(data.theme === 'night');
+                    localStorage.setItem(THEME_KEY, data.theme);
+                }
+                if (data.background) {
+                    applyBackground(data.background);
+                    dbSet(BG_DB_KEY, data.background).catch(function(){});
+                }
+                if (data.bgSettings) {
+                    bgSettings.scale = data.bgSettings.scale || 1;
+                    bgSettings.posX = data.bgSettings.posX != null ? data.bgSettings.posX : 50;
+                    bgSettings.posY = data.bgSettings.posY != null ? data.bgSettings.posY : 50;
+                    bgSettings.tile = !!data.bgSettings.tile;
+                    applyBgSettings();
+                    dbSet(BG_SETTINGS_KEY, JSON.stringify(bgSettings)).catch(function(){});
+                }
+                if (data.overlay) {
+                    localStorage.setItem('overlay_opacity', data.overlay);
+                    loadOverlayOpacity();
+                }
+                if (data.cardOpacity) {
+                    localStorage.setItem('card_opacity', data.cardOpacity);
+                    loadCardOpacity();
+                }
+                if (data.bgm) {
+                    bgmAudio.src = data.bgm;
+                    updateBgmUI(true);
+                    dbSet(BGM_DB_KEY, data.bgm).catch(function(){});
+                }
+
+                render(); showToast('已导入');
+            } catch(err) { showToast('导入失败'); }
+        };
+        reader.readAsText(file);
+    }
+
+    // ==================== 渲染 ====================
+    function render() {
+        var today = getTodayStr();
+        if (tasks.length === 0) {
+            taskList.innerHTML = '<div class="empty"><span class="big">▣</span>还没有任务</div>';
+            return;
+        }
+        taskList.innerHTML = '';
+        tasks.forEach(function(task) {
+            var isDone = task.lastCheckinDate === today;
+            var card = document.createElement('div');
+            card.className = 'task-card' + (isDone ? ' done' : '');
+            card.innerHTML =
+                '<div class="check-box" data-toggle="' + task.id + '">' + (isDone ? '✓' : '') + '</div>' +
+                '<div class="task-body">' +
+                    '<div class="task-title">' + escapeHtml(task.title) + '</div>' +
+                    '<div class="task-sub"><span class="streak">' + task.streak + '</span> 天</div>' +
+                '</div>' +
+                '<button class="del-btn" data-del="' + task.id + '">✕</button>';
+            taskList.appendChild(card);
+        });
+
+        taskList.querySelectorAll('[data-toggle]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var id = el.dataset.toggle;
+                var task = tasks.find(function(t) { return t.id === id; });
+                if (task && task.lastCheckinDate === today) undoToday(id);
+                else checkIn(id);
+            });
+        });
+        taskList.querySelectorAll('[data-del]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.stopPropagation();
+                deleteTask(el.dataset.del);
+            });
+        });
+    }
+
+    // ==================== 初始化 ====================
+    function init() {
+        var weekNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+        var now = new Date();
+        $('dateTag').textContent = now.getFullYear() + '/' + (now.getMonth()+1) + '/' + now.getDate() + ' ' + weekNames[now.getDay()];
+
+        var savedTheme = localStorage.getItem(THEME_KEY);
+        applyTheme(savedTheme !== 'day');
+
+        loadOverlayOpacity();
+        loadCardOpacity();
+		loadBlur();
+
+        dbGet(BG_DB_KEY).then(function(dataUrl) {
+            if (dataUrl) {
+                currentBgDataUrl = dataUrl;
+                bgLayer.style.backgroundImage = "url('" + dataUrl + "')";
+                bgClearBtn.style.display = 'inline-flex';
+                bgTuneBtn.style.display = 'inline-flex';
+            }
+        }).catch(function(){});
+
+        dbGet(BG_SETTINGS_KEY).then(function(settingsRaw) {
+            if (settingsRaw) {
+                var s = JSON.parse(settingsRaw);
+                bgSettings.scale = s.scale || 1;
+                bgSettings.posX = s.posX != null ? s.posX : 50;
+                bgSettings.posY = s.posY != null ? s.posY : 50;
+                bgSettings.tile = !!s.tile;
+            }
+            applyBgSettings();
+        }).catch(function(){});
+
+        dbGet(BGM_DB_KEY).then(function(dataUrl) {
+            if (dataUrl) { bgmAudio.src = dataUrl; updateBgmUI(true); }
+        }).catch(function(){});
+
+        render();
+
+        // 主题
+        themeBtn.addEventListener('click', function() {
+            var isNight = !document.body.classList.contains('night');
+            applyTheme(isNight);
+            localStorage.setItem(THEME_KEY, isNight ? 'night' : 'day');
+        });
+
+        // 添加任务
+        addTaskBtn.addEventListener('click', addTask);
+        newTaskInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); addTask(); }
+        });
+
+        // 底部
+        $('resetTodayBtn').addEventListener('click', resetTodayAll);
+        $('resetAllBtn').addEventListener('click', resetAll);
+
+        // 背景选择
+        $('bgBtn').addEventListener('click', function() { bgFileInput.click(); });
+        bgFileInput.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            bgFileInput.value = '';
+            if (!file.type.startsWith('image/')) { showToast('请选择图片文件'); return; }
+            var sizeKB = (file.size / 1024).toFixed(1);
+            showToast('正在读取 ' + sizeKB + 'KB...');
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var dataUrl = ev.target.result;
+                applyBackground(dataUrl);
+                bgSettings.scale = 1;
+                bgSettings.posX = 50;
+                bgSettings.posY = 50;
+                bgSettings.tile = false;
+                applyBgSettings();
+                dbSet(BG_DB_KEY, dataUrl).then(function() {
+                    return dbSet(BG_SETTINGS_KEY, JSON.stringify(bgSettings));
+                }).then(function() {
+                    showToast('背景已保存');
+                }).catch(function(err) {
+                    console.error(err);
+                    showToast('背景已显示，但保存失败');
+                });
+            };
+            reader.onerror = function() { showToast('读取图片失败'); };
+            reader.readAsDataURL(file);
+        });
+
+        // 清除背景
+        bgClearBtn.addEventListener('click', function() {
+            applyBackground(null);
+            dbDelete(BG_DB_KEY).catch(function(){});
+            dbDelete(BG_SETTINGS_KEY).catch(function(){});
+            showToast('已清除');
+        });
+
+        // 展开 / 收起调节面板
+        bgTuneBtn.addEventListener('click', function() {
+            var isHidden = bgTunePanel.style.display === 'none';
+            bgTunePanel.style.display = isHidden ? 'block' : 'none';
+        });
+
+        // 背景大小 / 位置 / 平铺
+        $('scaleSlider').addEventListener('input', function(e) {
+            bgSettings.scale = e.target.value / 100;
+            applyBgSettings();
+        });
+        $('posXSlider').addEventListener('input', function(e) {
+            bgSettings.posX = parseInt(e.target.value);
+            applyBgSettings();
+        });
+        $('posYSlider').addEventListener('input', function(e) {
+            bgSettings.posY = parseInt(e.target.value);
+            applyBgSettings();
+        });
+        // 遮罩浓度 —— 先绑
+        $('overlaySlider').addEventListener('input', function(e) {
+            var v = e.target.value / 100;
+            applyOverlayOpacity(v);
+            localStorage.setItem('overlay_opacity', String(v));
+        });
+
+        // 卡片不透明度 —— 再绑
+        $('cardOpacitySlider').addEventListener('input', function(e) {
+            var v = e.target.value / 100;
+            applyCardOpacity(v);
+            localStorage.setItem('card_opacity', String(v));
+        });
+
+        // 磨砂开关
+        $('blurCheck').addEventListener('change', function(e) {
+            var enabled = e.target.checked;
+            applyBlur(enabled);
+            localStorage.setItem('card_blur', enabled ? '1' : '0');
+        });
+
+        // 背景大小 / 位置 / 平铺 —— 放后面
+        $('scaleSlider').addEventListener('input', function(e) {
+            bgSettings.scale = e.target.value / 100;
+            applyBgSettings();
+        });
+        $('posXSlider').addEventListener('input', function(e) {
+            bgSettings.posX = parseInt(e.target.value);
+            applyBgSettings();
+        });
+        $('posYSlider').addEventListener('input', function(e) {
+            bgSettings.posY = parseInt(e.target.value);
+            applyBgSettings();
+        });
+        $('tileCheck').addEventListener('change', function(e) {
+            bgSettings.tile = e.target.checked;
+            applyBgSettings();
+        });
+				
+        // 滑块松手时保存
+        ['scaleSlider', 'posXSlider', 'posYSlider', 'tileCheck'].forEach(function(id) {
+            $(id).addEventListener('change', saveBgSettings);
+        });
+
+        // 恢复默认
+        $('bgResetTune').addEventListener('click', function() {
+            bgSettings.scale = 1;
+            bgSettings.posX = 50;
+            bgSettings.posY = 50;
+            bgSettings.tile = false;
+            applyBgSettings();
+            saveBgSettings();
+            applyOverlayOpacity(0.25);
+            localStorage.removeItem('overlay_opacity');
+            applyCardOpacity(0.8);
+            localStorage.setItem('card_opacity', '0.8');
+			applyBlur(true);
+			localStorage.setItem('card_blur', '1');
+        });
+
+        // BGM
+        $('bgmBtn').addEventListener('click', function() { bgmFileInput.click(); });
+        bgmFileInput.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            bgmFileInput.value = '';
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var dataUrl = ev.target.result;
+                bgmAudio.src = dataUrl;
+                bgmAudio.currentTime = 0;
+                dbSet(BGM_DB_KEY, dataUrl).catch(function(){});
+                bgmAudio.play().then(function() {
+                    bgmPlaying = true; updateBgmUI(true);
+                }).catch(function() {
+                    updateBgmUI(true);
+                    showToast('点▶播放');
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+
+        bgmToggle.addEventListener('click', function() {
+            if (!bgmAudio.src) return;
+            if (bgmPlaying) bgmAudio.pause();
+            else bgmAudio.play().catch(function() { showToast('播放失败'); });
+            updateBgmUI(true);
+        });
+        bgmAudio.addEventListener('play', function() { bgmPlaying = true; updateBgmUI(true); });
+        bgmAudio.addEventListener('pause', function() { bgmPlaying = false; updateBgmUI(true); });
+
+        // 导出 / 导入
+        $('exportBtn').addEventListener('click', exportBackup);
+        $('importBtn').addEventListener('click', function() { importFileInput.click(); });
+        importFileInput.addEventListener('change', function(e) {
+            if (e.target.files[0]) importBackup(e.target.files[0]);
+            importFileInput.value = '';
+        });
+    }
+
+    init();
+
+})();
+</script>
+</body>
+</html>
