@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -54,18 +55,15 @@
         font-size: 16px;
     }
 
-    /* ===== 背景层 ===== */
     #bgLayer {
-        position: fixed;
-        inset: 0;
+        position: fixed; inset: 0;
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
         z-index: 0;
     }
     #bgOverlayMask {
-        position: fixed;
-        inset: 0;
+        position: fixed; inset: 0;
         background: rgb(var(--overlay-color));
         opacity: var(--overlay-opacity);
         z-index: 1;
@@ -73,18 +71,14 @@
         transition: opacity 0.2s, background 0.3s;
     }
 
-    /* ===== 主内容 ===== */
     .app {
-        position: relative;
-        z-index: 2;
-        width: 100%;
-        max-width: 760px;
+        position: relative; z-index: 2;
+        width: 100%; max-width: 760px;
         margin: 0 auto;
         padding: 28px 22px 56px;
         min-height: 100vh;
     }
 
-    /* ===== 通用卡片样式（透明度由 --card-opacity 控制） ===== */
     .topbar, .toolbar, .add-panel, .task-card, .footer-actions, #bgTunePanel {
         background: rgba(var(--panel-rgb), var(--card-opacity));
         border-radius: 12px;
@@ -95,238 +89,136 @@
     }
 
     .topbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-        gap: 12px;
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
         padding: 16px 20px;
     }
-    .logo {
-        font-size: 1.4rem;
-        color: var(--accent);
-        letter-spacing: 3px;
-        text-shadow: 3px 3px 0 var(--shadow);
-    }
-    .date-tag {
-        font-size: 0.85rem;
-        color: var(--text-dim);
-    }
+    .logo { font-size: 1.4rem; color: var(--accent); letter-spacing: 3px; text-shadow: 3px 3px 0 var(--shadow); }
+    .date-tag { font-size: 0.85rem; color: var(--text-dim); }
 
-    .toolbar {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-        padding: 10px 12px;
-    }
+    .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; padding: 10px 12px; }
     .tool-btn {
-        font-family: inherit;
-        font-size: 1rem;
-        color: var(--text-dim);
-        background: transparent;
-        border: 2px solid var(--border);
-        padding: 14px 18px;
-        cursor: pointer;
-        line-height: 1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex: 1 1 auto;
-        min-width: 60px;
+        font-family: inherit; font-size: 1rem; color: var(--text-dim);
+        background: transparent; border: 2px solid var(--border);
+        padding: 14px 18px; cursor: pointer; line-height: 1;
+        display: inline-flex; align-items: center; justify-content: center;
+        flex: 1 1 auto; min-width: 60px;
     }
-    .tool-btn:active {
-        background: var(--panel);
-        color: var(--text);
-    }
+    .tool-btn:active { background: var(--panel); color: var(--text); }
 
-    .add-panel {
-        display: flex;
-        gap: 0;
-        margin-bottom: 16px;
-        padding: 4px 16px;
-    }
+    .add-panel { display: flex; gap: 0; margin-bottom: 16px; padding: 4px 16px; }
     .add-panel input {
-        flex: 1;
-        font-family: inherit;
-        font-size: 1rem;
-        color: var(--text);
-        background: transparent;
-        border: none;
-        padding: 16px 0;
-        outline: none;
-        min-width: 0;
+        flex: 1; font-family: inherit; font-size: 1rem; color: var(--text);
+        background: transparent; border: none; padding: 16px 0; outline: none; min-width: 0;
     }
     .add-panel input::placeholder { color: var(--text-dim); }
     .add-panel button {
-        font-family: inherit;
-        font-size: 1.6rem;
-        color: var(--accent);
-        background: transparent;
-        border: none;
-        padding: 12px 16px;
-        cursor: pointer;
-        line-height: 1;
+        font-family: inherit; font-size: 1.6rem; color: var(--accent);
+        background: transparent; border: none; padding: 12px 16px; cursor: pointer; line-height: 1;
     }
 
-    .task-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-    }
+    .task-list { display: flex; flex-direction: column; gap: 0; }
     .task-card {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        padding: 18px 20px;
-        margin-bottom: 10px;
+        display: flex; align-items: center; gap: 18px;
+        padding: 18px 20px; margin-bottom: 10px;
     }
     .task-card.done { opacity: 0.55; }
 
     .check-box {
-        width: 34px;
-        height: 34px;
-        border: 3px solid var(--border);
-        flex-shrink: 0;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        color: transparent;
+        width: 34px; height: 34px; border: 3px solid var(--border);
+        flex-shrink: 0; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; color: transparent;
     }
     .check-box:active { transform: scale(0.9); }
-    .task-card.done .check-box {
-        background: var(--accent2);
-        border-color: var(--accent2);
-        color: var(--bg-base);
-    }
+    .task-card.done .check-box { background: var(--accent2); border-color: var(--accent2); color: var(--bg-base); }
 
     .task-body { flex: 1; min-width: 0; }
-    .task-title {
-        font-size: 1rem;
-        line-height: 1.6;
-        color: var(--text);
-        word-break: break-word;
-        margin-bottom: 8px;
-    }
+    .task-title { font-size: 1rem; line-height: 1.6; color: var(--text); word-break: break-word; margin-bottom: 8px; }
     .task-card.done .task-title { text-decoration: line-through; }
-
-    .task-sub {
-        font-size: 0.75rem;
-        color: var(--text-dim);
-        line-height: 1.5;
-    }
+    .task-sub { font-size: 0.75rem; color: var(--text-dim); line-height: 1.5; }
     .task-sub .streak { color: var(--accent); }
 
     .del-btn {
-        font-family: inherit;
-        background: transparent;
-        border: none;
-        color: var(--text-dim);
-        font-size: 1.1rem;
-        cursor: pointer;
-        padding: 8px;
-        flex-shrink: 0;
-        opacity: 0.4;
+        font-family: inherit; background: transparent; border: none;
+        color: var(--text-dim); font-size: 1.1rem; cursor: pointer;
+        padding: 8px; flex-shrink: 0; opacity: 0.4;
     }
     .del-btn:active { opacity: 1; color: var(--danger); }
 
-    .empty {
-        text-align: center;
-        padding: 80px 16px;
-        color: var(--text-dim);
-        font-size: 0.9rem;
-        line-height: 2.2;
-    }
+    .empty { text-align: center; padding: 80px 16px; color: var(--text-dim); font-size: 0.9rem; line-height: 2.2; }
     .empty .big { font-size: 3rem; display: block; margin-bottom: 24px; opacity: 0.4; }
 
-    .footer-actions {
-        margin-top: 20px;
-        display: flex;
-        gap: 10px;
-        padding: 10px 12px;
-    }
+    .footer-actions { margin-top: 20px; display: flex; gap: 10px; padding: 10px 12px; }
     .footer-actions .tool-btn { font-size: 0.85rem; padding: 16px 10px; }
 
     .toast {
-        position: fixed;
-        left: 50%;
-        bottom: 40px;
+        position: fixed; left: 50%; bottom: 40px;
         transform: translateX(-50%) translateY(12px);
-        background: var(--panel);
-        border: 2px solid var(--border);
-        color: var(--text);
-        padding: 16px 24px;
-        font-size: 0.85rem;
-        line-height: 1.6;
-        opacity: 0;
-        pointer-events: none;
-        transition: all 0.2s;
-        z-index: 999;
-        max-width: 88vw;
-        text-align: center;
+        background: var(--panel); border: 2px solid var(--border);
+        color: var(--text); padding: 16px 24px; font-size: 0.85rem;
+        line-height: 1.6; opacity: 0; pointer-events: none;
+        transition: all 0.2s; z-index: 9999; max-width: 88vw; text-align: center;
     }
-    .toast.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     .hidden-file { display: none; }
 
-    .bgm-indicator {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        background: var(--text-dim);
-        margin-right: 6px;
-        vertical-align: middle;
-    }
-    .bgm-indicator.on {
-        background: var(--accent2);
-        animation: blink 1s steps(2) infinite;
-    }
-    @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.2; }
-    }
+    .bgm-indicator { display: inline-block; width: 8px; height: 8px; background: var(--text-dim); margin-right: 6px; vertical-align: middle; }
+    .bgm-indicator.on { background: var(--accent2); animation: blink 1s steps(2) infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-    /* ===== 滑块 ===== */
     input[type="range"] {
-        -webkit-appearance: none;
-        appearance: none;
-        height: 10px;
-        background: var(--border);
-        outline: none;
-        border-radius: 0;
-        width: 100%;
-        display: block;
+        -webkit-appearance: none; appearance: none;
+        height: 10px; background: var(--border); outline: none; border-radius: 0; width: 100%; display: block;
     }
     input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 24px;
-        height: 24px;
-        background: var(--accent);
-        cursor: pointer;
-        border: 2px solid var(--shadow);
+        -webkit-appearance: none; appearance: none;
+        width: 24px; height: 24px; background: var(--accent);
+        cursor: pointer; border: 2px solid var(--shadow);
     }
     input[type="range"]::-moz-range-thumb {
-        width: 24px;
-        height: 24px;
-        background: var(--accent);
-        cursor: pointer;
-        border: 2px solid var(--shadow);
-        border-radius: 0;
+        width: 24px; height: 24px; background: var(--accent);
+        cursor: pointer; border: 2px solid var(--shadow); border-radius: 0;
     }
 
     .tune-row { margin-bottom: 18px; }
-    .tune-label {
-        font-size: 0.75rem;
-        color: var(--text-dim);
-        margin-bottom: 10px;
-        display: block;
+    .tune-label { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 10px; display: block; }
+
+    /* ===== 全屏遮罩层 ===== */
+    .fullscreen-screen {
+        position: fixed; inset: 0; background: var(--bg-base);
+        z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .screen-box {
+        max-width: 380px; width: 100%; background: var(--panel);
+        padding: 32px 24px; border-radius: 16px; border: 1px solid var(--border);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    }
+    .screen-title { font-size: 1.2rem; color: var(--accent); margin-bottom: 24px; text-align: center; }
+    .screen-btn {
+        width: 100%; margin-bottom: 12px;
+        font-family: inherit; font-size: 1rem; color: var(--text);
+        background: transparent; border: 2px solid var(--border);
+        padding: 18px 16px; cursor: pointer; line-height: 1.4;
+        text-align: center;
+    }
+    .screen-btn:active { background: var(--panel); }
+    .screen-btn.primary { border-color: var(--accent); color: var(--accent); }
+    .screen-btn .sub { display: block; font-size: 0.7rem; color: var(--text-dim); margin-top: 8px; }
+    #loginScreen input {
+        width: 100%; padding: 14px; margin-bottom: 12px;
+        background: transparent; border: 2px solid var(--border);
+        color: var(--text); font-family: inherit; font-size: 0.9rem; outline: none;
+    }
+    #loginScreen input:focus { border-color: var(--accent); }
+    .auth-msg { margin-top: 12px; font-size: 0.75rem; color: var(--text-dim); text-align: center; min-height: 1.2em; }
+    .code-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .code-row input { flex: 1; margin-bottom: 0; }
+    .code-row button {
+        font-family: inherit; font-size: 0.8rem; color: var(--accent);
+        background: transparent; border: 2px solid var(--border);
+        padding: 0 16px; cursor: pointer; white-space: nowrap;
     }
 
     @media (min-width: 700px) {
@@ -343,6 +235,36 @@
 </style>
 </head>
 <body>
+
+<!-- ============ 欢迎页 ============ -->
+<div id="welcomeScreen" class="fullscreen-screen">
+    <div class="screen-box">
+        <div class="screen-title">▣ CHECK</div>
+        <button id="localBtn" class="screen-btn">
+            本地使用
+            <span class="sub">数据只存这台设备，不联网</span>
+        </button>
+        <button id="cloudBtn" class="screen-btn primary">
+            云端同步
+            <span class="sub">邮箱登录，多设备同步</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============ 登录页 ============ -->
+<div id="loginScreen" class="fullscreen-screen" style="display:none;">
+    <div class="screen-box">
+        <div class="screen-title">▣ 登录</div>
+        <input id="authEmail" type="email" placeholder="邮箱" autocomplete="email">
+        <div class="code-row">
+            <input id="authCode" type="text" placeholder="验证码" inputmode="numeric">
+            <button id="sendCodeBtn">发送验证码</button>
+        </div>
+        <button id="authLoginBtn" class="screen-btn primary" style="margin-top:8px;">登录 / 注册</button>
+        <button id="backToWelcomeBtn" class="screen-btn" style="font-size:0.8rem; padding:12px;">返回</button>
+        <div id="authMsg" class="auth-msg"></div>
+    </div>
+</div>
 
 <div id="bgLayer"></div>
 <div id="bgOverlayMask"></div>
@@ -362,6 +284,7 @@
         <button class="tool-btn" id="bgmToggle" title="播放/暂停" style="display:none;">⏸</button>
         <button class="tool-btn" id="exportBtn" title="导出">↓ 导出</button>
         <button class="tool-btn" id="importBtn" title="导入">↑ 导入</button>
+        <button class="tool-btn" id="logoutBtn" title="退出登录" style="display:none;">⎋ 退出</button>
     </div>
 
     <div class="add-panel">
@@ -376,45 +299,36 @@
         <button class="tool-btn" id="resetAllBtn">清空</button>
     </div>
 
-    <!-- 背景调节面板 -->
     <div id="bgTunePanel" style="display:none; margin-top: 20px; padding: 20px;">
         <div style="font-size: 0.85rem; color: var(--accent); margin-bottom: 20px;">背景调节</div>
-
         <div class="tune-row">
             <label class="tune-label">大小 <span id="scaleValue">100%</span></label>
             <input type="range" id="scaleSlider" min="10" max="400" value="100">
         </div>
-
         <div class="tune-row">
             <label class="tune-label">水平位置 <span id="posXValue">50%</span></label>
             <input type="range" id="posXSlider" min="0" max="100" value="50">
         </div>
-
         <div class="tune-row">
             <label class="tune-label">垂直位置 <span id="posYValue">50%</span></label>
             <input type="range" id="posYSlider" min="0" max="100" value="50">
         </div>
-
         <div class="tune-row">
             <label class="tune-label">遮罩浓度 <span id="overlayValue">25%</span></label>
             <input type="range" id="overlaySlider" min="0" max="90" value="25">
         </div>
-
         <div class="tune-row">
             <label class="tune-label">卡片不透明度 <span id="cardOpacityValue">80%</span></label>
             <input type="range" id="cardOpacitySlider" min="0" max="100" value="80">
         </div>
-
         <div class="tune-row" style="display: flex; align-items: center; gap: 10px;">
             <input type="checkbox" id="blurCheck" style="width: 18px; height: 18px;" checked>
             <label for="blurCheck" style="font-size: 0.75rem; color: var(--text-dim);">磨砂效果</label>
         </div>
-		
         <div class="tune-row" style="display: flex; align-items: center; gap: 10px;">
             <input type="checkbox" id="tileCheck" style="width: 18px; height: 18px;">
             <label for="tileCheck" style="font-size: 0.75rem; color: var(--text-dim);">平铺（原尺寸重复）</label>
         </div>
-
         <button class="tool-btn" id="bgResetTune" style="font-size: 0.75rem; padding: 12px 16px; width: 100%;">恢复默认</button>
     </div>
 </div>
@@ -430,6 +344,34 @@
 <script>
 (function() {
     'use strict';
+
+    // ==================== CloudBase 初始化 ====================
+    var CLOUDBASE_ENV = 'check-d5gf36o4839b98d44';
+    var CLOUDBASE_REGION = 'ap-shanghai';
+    var CLOUDBASE_ACCESS_KEY = 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImIzMmZhYzc0LWEyODYtNDFiNC05NTdmLTdmOWQzMTUzYjUzMCJ9.eyJpc3MiOiJodHRwczovL2NoZWNrLWQ1Z2YzNm80ODM5Yjk4ZDQ0LmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJjaGVjay1kNWdmMzZvNDgzOWI5OGQ0NCIsImV4cCI6NDA5NDE2Njk1NywiaWF0IjoxNzkwNDgzNzU3LCJub25jZSI6Inhob2hhRTk0UWFLblVDV2NkOFRfX3ciLCJhdF9oYXNoIjoieGhvaGFFOTRRYUtuVUNXY2Q4VF9fdyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJjaGVjay1kNWdmMzZvNDgzOWI5OGQ0NCIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJyb2xlIjoiYW5vbiIsImlzX2Fub255bW91cyI6dHJ1ZSwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiYW5vbnltb3VzIiwicHJvdmlkZXJzIjpbImFub255bW91cyJdfSwidXNlcl9tZXRhZGF0YSI6eyJuYW1lIjoiQW5vbnltb3VzIn0sInVzZXJfdHlwZSI6IiIsImNsaWVudF90eXBlIjoiY2xpZW50X3VzZXIiLCJpc19zeXN0ZW1fYWRtaW4iOmZhbHNlfQ.dbbYZyKGgRmZ0bE4drhdzLI9SDawtoG2B8rM3UAq96UTsnW3QkJSWd2-PN9LqAD5QZ3n2yJPyzU18ewiMTmbTkOCp0vYFkhNA4q_CvXH5hTqTTReeNPtJoW-f5_-kOoWHTatUogvVNKEcx6yqfui2I-81c7_RTgfffxa-4TIwcL4ami1ni1DIHLAhZLehYAxPTTiWWgw4kx6OCbR0Ezmqxfd28G1M15ULDUB5Sa9IhA5haCBmw2lL9D5ns85JmQu74rlH9rk08K749mjxja34JCMWhXAcbcyu_PwDoZnUsfXjjLfcLVgLhZB9CMnPNDV9VsgWk0-ZcgRtEfAXZVmNw';
+
+    var tcbApp = null;
+    var tcbAuth = null;
+    var tcbDB = null;
+    var isCloudMode = false;
+    var currentUser = null;
+    var pendingVerification = null;
+
+    try {
+        if (window.cloudbase) {
+            tcbApp = window.cloudbase.init({
+                env: CLOUDBASE_ENV,
+                region: CLOUDBASE_REGION,
+                accessKey: CLOUDBASE_ACCESS_KEY
+            });
+            tcbAuth = tcbApp.auth();
+            tcbDB = tcbApp.rdb();
+        } else {
+            console.warn('CloudBase SDK 未加载');
+        }
+    } catch(e) {
+        console.warn('CloudBase 初始化失败', e);
+    }
 
     function $(id) { return document.getElementById(id); }
 
@@ -468,6 +410,12 @@
     var themeBtn = $('themeBtn');
     var metaTheme = document.querySelector('meta[name="theme-color"]');
 
+    var welcomeScreen = $('welcomeScreen');
+    var loginScreen = $('loginScreen');
+    var authEmail = $('authEmail');
+    var authCode = $('authCode');
+    var authMsg = $('authMsg');
+
     var toastTimer = null;
     function showToast(msg) {
         toast.textContent = msg;
@@ -475,6 +423,7 @@
         clearTimeout(toastTimer);
         toastTimer = setTimeout(function() { toast.classList.remove('show'); }, 2000);
     }
+    function showAuthMsg(msg) { authMsg.textContent = msg; }
 
     // ==================== IndexedDB ====================
     var DB_NAME = 'pixel_checkin_db';
@@ -543,7 +492,6 @@
         var def = 0.25;
         applyOverlayOpacity(saved !== null ? parseFloat(saved) : def);
     }
-
     function applyCardOpacity(value) {
         document.body.style.setProperty('--card-opacity', value);
         var valEl = $('cardOpacityValue');
@@ -566,6 +514,7 @@
         var def = true;
         applyBlur(saved !== null ? saved === '1' : def);
     }
+
     // ==================== 主题 ====================
     function applyTheme(isNight) {
         if (isNight) {
@@ -662,6 +611,54 @@
         }
     }
 
+    // ==================== 云端同步（CloudBase） ====================
+    async function syncToCloud(task) {
+        if (!isCloudMode || !currentUser || !tcbDB) return;
+        try {
+            // 先查是否存在
+            var res = await tcbDB.from('checkins').select('id').eq('user_id', currentUser.uid).eq('task_id', task.id);
+            var data = {
+                user_id: currentUser.uid,
+                task_id: task.id,
+                task_title: task.title,
+                last_checkin_date: task.lastCheckinDate,
+                streak: task.streak
+            };
+            if (res.data && res.data.length > 0) {
+                await tcbDB.from('checkins').update(data).eq('user_id', currentUser.uid).eq('task_id', task.id);
+            } else {
+                await tcbDB.from('checkins').insert(data);
+            }
+        } catch(e) {
+            console.warn('同步失败', e);
+        }
+    }
+
+    async function syncFromCloud() {
+        if (!isCloudMode || !currentUser || !tcbDB) return;
+        try {
+            var res = await tcbDB.from('checkins').select('*').eq('user_id', currentUser.uid);
+            if (res.data && res.data.length) {
+                res.data.forEach(function(row) {
+                    var local = tasks.find(function(t) { return t.id === row.task_id; });
+                    if (!local) {
+                        tasks.push({
+                            id: row.task_id,
+                            title: row.task_title,
+                            lastCheckinDate: row.last_checkin_date,
+                            streak: row.streak || 0
+                        });
+                    } else {
+                        if (row.last_checkin_date && row.last_checkin_date !== local.lastCheckinDate) {
+                            local.lastCheckinDate = row.last_checkin_date;
+                            local.streak = row.streak || 0;
+                        }
+                    }
+                });
+                saveTasks();
+            }
+        } catch(e) { console.warn('拉取云端失败', e); }
+    }
     // ==================== 打卡逻辑 ====================
     function checkIn(taskId) {
         var today = getTodayStr();
@@ -672,6 +669,7 @@
         task.lastCheckinDate = today;
         task.streak = newStreak;
         saveTasks(); render();
+        if (isCloudMode) syncToCloud(task);
         showToast('✓ ' + newStreak + ' 天');
     }
     function undoToday(taskId) {
@@ -685,19 +683,25 @@
             task.lastCheckinDate = null; task.streak = 0;
         }
         saveTasks(); render();
+        if (isCloudMode) syncToCloud(task);
     }
     function addTask() {
         var title = newTaskInput.value.trim();
         if (!title) return;
         if (tasks.length >= 30) { showToast('任务太多'); return; }
-        tasks.push({ id: uid(), title: title, lastCheckinDate: null, streak: 0 });
+        var newTask = { id: uid(), title: title, lastCheckinDate: null, streak: 0 };
+        tasks.push(newTask);
         newTaskInput.value = '';
         saveTasks(); render();
+        if (isCloudMode) syncToCloud(newTask);
     }
     function deleteTask(taskId) {
         if (!confirm('删除？')) return;
         tasks = tasks.filter(function(t) { return t.id !== taskId; });
         saveTasks(); render();
+        if (isCloudMode && currentUser && tcbDB) {
+            tcbDB.from('checkins').delete().eq('user_id', currentUser.uid).eq('task_id', taskId).catch(function(){});
+        }
     }
     function resetTodayAll() {
         var today = getTodayStr();
@@ -711,6 +715,7 @@
                     task.lastCheckinDate = null; task.streak = 0;
                 }
                 count++;
+                if (isCloudMode) syncToCloud(task);
             }
         });
         if (!count) return;
@@ -726,7 +731,7 @@
     function exportBackup() {
         Promise.all([dbGet(BG_DB_KEY), dbGet(BGM_DB_KEY), dbGet(BG_SETTINGS_KEY)]).then(function(results) {
             var backup = {
-                version: 5,
+                version: 6,
                 exportedAt: new Date().toISOString(),
                 tasks: tasks,
                 theme: document.body.classList.contains('night') ? 'night' : 'day',
@@ -766,6 +771,7 @@
                     };
                 });
                 saveTasks();
+                if (isCloudMode) { tasks.forEach(function(t) { syncToCloud(t); }); }
 
                 if (data.theme) {
                     applyTheme(data.theme === 'night');
@@ -842,6 +848,92 @@
         });
     }
 
+    // ==================== 欢迎页 / 登录 ====================
+    $('localBtn').addEventListener('click', function() {
+        isCloudMode = false;
+        welcomeScreen.style.display = 'none';
+        $('logoutBtn').style.display = 'none';
+		showToast('本地模式');
+    });
+
+    $('cloudBtn').addEventListener('click', function() {
+        welcomeScreen.style.display = 'none';
+        loginScreen.style.display = 'flex';
+        checkSession();
+    });
+
+    $('backToWelcomeBtn').addEventListener('click', function() {
+        loginScreen.style.display = 'none';
+        welcomeScreen.style.display = 'flex';
+    });
+
+    $('sendCodeBtn').addEventListener('click', async function() {
+        var email = authEmail.value.trim();
+        if (!email) { showAuthMsg('请填写邮箱'); return; }
+        if (!tcbAuth) { showAuthMsg('CloudBase 未初始化'); return; }
+        showAuthMsg('发送中...');
+        try {
+            var res = await tcbAuth.getVerification({ email: email });
+            pendingVerification = res;
+            showAuthMsg('验证码已发送，请查收邮箱');
+        } catch(e) {
+            console.error('发送验证码失败:', e);
+            showAuthMsg('发送失败：' + (e.message || e.error || JSON.stringify(e)));
+        }
+    });
+
+    $('authLoginBtn').addEventListener('click', async function() {
+        var email = authEmail.value.trim();
+        var code = authCode.value.trim();
+        if (!email || !code) { showAuthMsg('请填写邮箱和验证码'); return; }
+        if (!tcbAuth) { showAuthMsg('CloudBase 未初始化'); return; }
+        if (!pendingVerification) { showAuthMsg('请先发送验证码'); return; }
+        showAuthMsg('登录中...');
+        try {
+            var loginRes = await tcbAuth.signInWithEmail({
+                verificationInfo: pendingVerification,
+                verificationCode: code,
+                email: email
+            });
+            console.log('signInWithEmail 返回:', loginRes);
+            var userRes = await tcbAuth.getCurrentUser();
+            if (!userRes || !userRes.email) {
+                showAuthMsg('登录失败：未获取到邮箱用户');
+                return;
+            }
+            currentUser = userRes;
+            console.log('登录后的用户:', currentUser);
+            isCloudMode = true;
+            loginScreen.style.display = 'none';
+            await syncFromCloud();
+            render();
+			$('logoutBtn').style.display = 'inline-flex';
+            showToast('已登录，云端同步已开启');
+        } catch(e) {
+            showAuthMsg('登录失败：' + (e.message || e));
+        }
+    });
+
+    async function checkSession() {
+        if (!tcbAuth) return;
+        try {
+            var user = await tcbAuth.getCurrentUser();
+            if (user && user.email) {
+                currentUser = user;
+                isCloudMode = true;
+                loginScreen.style.display = 'none';
+                await syncFromCloud();
+                render();
+                $('logoutBtn').style.display = 'inline-flex';
+            } else {
+                // 未登录，显示登录页
+                loginScreen.style.display = 'flex';
+            }
+        } catch(e) {
+            loginScreen.style.display = 'flex';
+        }
+    }
+	
     // ==================== 初始化 ====================
     function init() {
         var weekNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
@@ -853,7 +945,7 @@
 
         loadOverlayOpacity();
         loadCardOpacity();
-		loadBlur();
+        loadBlur();
 
         dbGet(BG_DB_KEY).then(function(dataUrl) {
             if (dataUrl) {
@@ -943,27 +1035,14 @@
             bgTunePanel.style.display = isHidden ? 'block' : 'none';
         });
 
-        // 背景大小 / 位置 / 平铺
-        $('scaleSlider').addEventListener('input', function(e) {
-            bgSettings.scale = e.target.value / 100;
-            applyBgSettings();
-        });
-        $('posXSlider').addEventListener('input', function(e) {
-            bgSettings.posX = parseInt(e.target.value);
-            applyBgSettings();
-        });
-        $('posYSlider').addEventListener('input', function(e) {
-            bgSettings.posY = parseInt(e.target.value);
-            applyBgSettings();
-        });
-        // 遮罩浓度 —— 先绑
+        // 遮罩浓度
         $('overlaySlider').addEventListener('input', function(e) {
             var v = e.target.value / 100;
             applyOverlayOpacity(v);
             localStorage.setItem('overlay_opacity', String(v));
         });
 
-        // 卡片不透明度 —— 再绑
+        // 卡片不透明度
         $('cardOpacitySlider').addEventListener('input', function(e) {
             var v = e.target.value / 100;
             applyCardOpacity(v);
@@ -977,7 +1056,7 @@
             localStorage.setItem('card_blur', enabled ? '1' : '0');
         });
 
-        // 背景大小 / 位置 / 平铺 —— 放后面
+        // 背景大小 / 位置 / 平铺
         $('scaleSlider').addEventListener('input', function(e) {
             bgSettings.scale = e.target.value / 100;
             applyBgSettings();
@@ -994,8 +1073,7 @@
             bgSettings.tile = e.target.checked;
             applyBgSettings();
         });
-				
-        // 滑块松手时保存
+
         ['scaleSlider', 'posXSlider', 'posYSlider', 'tileCheck'].forEach(function(id) {
             $(id).addEventListener('change', saveBgSettings);
         });
@@ -1012,8 +1090,8 @@
             localStorage.removeItem('overlay_opacity');
             applyCardOpacity(0.8);
             localStorage.setItem('card_opacity', '0.8');
-			applyBlur(true);
-			localStorage.setItem('card_blur', '1');
+            applyBlur(true);
+            localStorage.setItem('card_blur', '1');
         });
 
         // BGM
@@ -1053,6 +1131,18 @@
         importFileInput.addEventListener('change', function(e) {
             if (e.target.files[0]) importBackup(e.target.files[0]);
             importFileInput.value = '';
+        });
+        
+		// 退出登录
+        $('logoutBtn').addEventListener('click', async function() {
+            if (!confirm('退出登录？退出后本地数据保留，但不再同步')) return;
+            try {
+                if (tcbAuth) await tcbAuth.signOut();
+            } catch(e) {}
+            isCloudMode = false;
+            currentUser = null;
+            showToast('已退出登录');
+            location.reload();
         });
     }
 
